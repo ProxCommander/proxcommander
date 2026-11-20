@@ -38,7 +38,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }, []);
 
   return (
-    <View style={{ flex: 1 }} onTouchStartCapture={isWeb ? undefined : () => markActive()}>
+    <View className="flex-1" onTouchStartCapture={isWeb ? undefined : () => markActive()}>
       {children}
     </View>
   );

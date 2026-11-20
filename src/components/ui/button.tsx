@@ -18,15 +18,15 @@ const buttonVariants = cva(
           Platform.select({ web: 'hover:bg-primary/90' })
         ),
         destructive: cn(
-          'bg-destructive active:bg-destructive/90 dark:bg-destructive/60 shadow-sm shadow-black/5',
+          'bg-destructive active:bg-destructive/90 shadow-sm shadow-black/5',
           Platform.select({
             web: 'hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
           })
         ),
         outline: cn(
-          'border-border bg-background active:bg-accent dark:bg-input/30 dark:border-input dark:active:bg-input/50 border shadow-sm shadow-black/5',
+          'border-control-border bg-card active:bg-muted border shadow-sm shadow-black/5',
           Platform.select({
-            web: 'hover:bg-accent dark:hover:bg-input/50',
+            web: 'hover:bg-muted',
           })
         ),
         secondary: cn(
@@ -34,8 +34,8 @@ const buttonVariants = cva(
           Platform.select({ web: 'hover:bg-secondary/80' })
         ),
         ghost: cn(
-          'active:bg-accent dark:active:bg-accent/50',
-          Platform.select({ web: 'hover:bg-accent dark:hover:bg-accent/50' })
+          'active:bg-muted',
+          Platform.select({ web: 'hover:bg-muted' })
         ),
         link: '',
       },
@@ -62,13 +62,13 @@ const buttonTextVariants = cva(
     variants: {
       variant: {
         default: 'text-primary-foreground',
-        destructive: 'text-white',
+        destructive: 'text-destructive-foreground',
         outline: cn(
-          'group-active:text-accent-foreground',
-          Platform.select({ web: 'group-hover:text-accent-foreground' })
+          'group-active:text-foreground',
+          Platform.select({ web: 'group-hover:text-foreground' })
         ),
         secondary: 'text-secondary-foreground',
-        ghost: 'group-active:text-accent-foreground',
+        ghost: 'group-active:text-foreground',
         link: cn(
           'text-primary group-active:underline',
           Platform.select({ web: 'underline-offset-4 hover:underline group-hover:underline' })

@@ -1,7 +1,8 @@
-import { ChevronLeft, Plus, X } from 'lucide-react-native';
+import { KeyRound, Plus, Server, X, type LucideIcon } from 'lucide-react-native';
 import { useState, type ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
 
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
@@ -97,16 +98,13 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
 
   return (
     <View className="flex-1">
-      <View className="border-border flex-row items-center gap-2 border-b px-2 py-2">
-        <Button variant="ghost" size="icon" accessibilityLabel="Back" onPress={onCancel}>
-          <Icon as={ChevronLeft} />
-        </Button>
-        <Text className="text-lg font-semibold">Add cluster</Text>
-      </View>
+      <ScreenHeader title="Add cluster" onBack={onCancel} />
 
-      <ScrollView contentContainerClassName="gap-4 p-4 max-w-xl w-full self-center" keyboardShouldPersistTaps="handled">
-        <Card className="gap-4 px-4">
-          <Text className="font-semibold">Cluster</Text>
+      <ScrollView
+        contentContainerClassName="w-full max-w-xl gap-4 self-center p-4 pb-10 sm:pt-8"
+        keyboardShouldPersistTaps="handled">
+        <Card className="gap-5 px-4 py-5 sm:px-6">
+          <CardTitle icon={Server} title="Cluster" />
           <Field label="Name" error={show(problems.name)}>
             <Input value={name} onChangeText={setName} placeholder="Homelab" />
           </Field>
@@ -142,7 +140,7 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
               </View>
             ))}
             <Button variant="outline" size="sm" className="self-start" onPress={() => setEndpoints((list) => [...list, ''])}>
-              <Icon as={Plus} />
+              <Icon as={Plus} className="size-4" />
               <Text>Add address</Text>
             </Button>
           </View>
@@ -155,8 +153,8 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
           />
         </Card>
 
-        <Card className="gap-4 px-4">
-          <Text className="font-semibold">Login</Text>
+        <Card className="gap-5 px-4 py-5 sm:px-6">
+          <CardTitle icon={KeyRound} title="Login" />
           <View className="flex-row gap-3">
             <Field label="Username" error={show(problems.username)} className="flex-1">
               <Input value={username} onChangeText={setUsername} autoCapitalize="none" autoCorrect={false} />
@@ -168,14 +166,19 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
 
           <View className="gap-1.5">
             <Label>Authentication</Label>
-            <View className="flex-row gap-2">
+            <View role="radiogroup" aria-label="Authentication" className="bg-muted flex-row gap-1 self-start rounded-lg p-1">
               {(['password', 'token'] as const).map((method) => (
                 <Button
                   key={method}
                   size="sm"
-                  variant={authMethod === method ? 'default' : 'outline'}
+                  variant="ghost"
+                  role="radio"
+                  aria-checked={authMethod === method}
+                  className={authMethod === method ? 'bg-control-selected shadow-sm shadow-black/10' : undefined}
                   onPress={() => setAuthMethod(method)}>
-                  <Text>{method === 'password' ? 'Password' : 'API token'}</Text>
+                  <Text className={authMethod === method ? 'text-foreground' : 'text-muted-foreground'}>
+                    {method === 'password' ? 'Password' : 'API token'}
+                  </Text>
                 </Button>
               ))}
             </View>
@@ -226,7 +229,7 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
           </View>
         </Card>
 
-        <View className="flex-row justify-end gap-2">
+        <View className="flex-row justify-end gap-2 pt-1">
           <Button variant="outline" onPress={onCancel}>
             <Text>Cancel</Text>
           </Button>
@@ -235,6 +238,19 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
           </Button>
         </View>
       </ScrollView>
+    </View>
+  );
+}
+
+function CardTitle({ icon, title }: { icon: LucideIcon; title: string }) {
+  return (
+    <View className="flex-row items-center gap-2.5">
+      <View className="bg-muted size-8 items-center justify-center rounded-lg">
+        <Icon as={icon} className="text-muted-foreground size-4" />
+      </View>
+      <Text role="heading" aria-level="2" className="text-base font-semibold">
+        {title}
+      </Text>
     </View>
   );
 }

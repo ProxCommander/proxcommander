@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import * as SelectPrimitive from '@rn-primitives/select';
 import { Check, ChevronDown, ChevronDownIcon, ChevronUpIcon } from 'lucide-react-native';
 import * as React from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { FadeIn, FadeOut, ReduceMotion } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
@@ -46,21 +46,35 @@ function SelectTrigger({
     children?: React.ReactNode;
     size?: 'default' | 'sm';
   }) {
-  return (
-    <SelectPrimitive.Trigger
-      ref={ref}
-      className={cn(
-        'border-input dark:bg-input/30 dark:active:bg-input/50 bg-background flex h-10 flex-row items-center justify-between gap-2 rounded-md border px-3 py-2 shadow-sm shadow-black/5 sm:h-9',
-        Platform.select({
-          web: 'focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:hover:bg-input/50 w-fit whitespace-nowrap text-sm outline-none transition-[color,box-shadow] focus-visible:ring-[3px] disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:shrink-0',
-        }),
-        props.disabled && 'opacity-50',
-        size === 'sm' && 'h-8 py-2 sm:py-1.5',
-        className
-      )}
-      {...props}>
+  const triggerClassName = cn(
+    'border-input bg-field active:bg-muted flex h-10 flex-row items-center justify-between gap-2 rounded-md border px-3 py-2 shadow-sm shadow-black/5 sm:h-9',
+    Platform.select({
+      web: 'focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-muted w-fit whitespace-nowrap text-sm outline-none transition-[color,box-shadow] focus-visible:ring-[3px] disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:shrink-0 text-left [&>span]:min-w-0 [&>span]:flex-1 [&>span]:truncate [&>span>*]:truncate',
+    }),
+    props.disabled && 'opacity-50',
+    size === 'sm' && 'h-8 py-2 sm:py-1.5',
+    className
+  );
+  const content = (
+    <>
       <>{children}</>
       <Icon as={ChevronDown} aria-hidden={true} className="text-muted-foreground size-4" />
+    </>
+  );
+
+  // On web the primitive's own Pressable ignores className, so it renders through `asChild` onto
+  // this file's Pressable. Native keeps the primitive's element, which it measures to place the list.
+  if (Platform.OS === 'web') {
+    return (
+      <SelectPrimitive.Trigger ref={ref} asChild {...props}>
+        <Pressable className={triggerClassName}>{content}</Pressable>
+      </SelectPrimitive.Trigger>
+    );
+  }
+
+  return (
+    <SelectPrimitive.Trigger ref={ref} className={triggerClassName} {...props}>
+      {content}
     </SelectPrimitive.Trigger>
   );
 }
@@ -154,9 +168,9 @@ function SelectItem({
   return (
     <SelectPrimitive.Item
       className={cn(
-        'active:bg-accent group relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 sm:py-1.5',
+        'active:bg-muted group relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 sm:py-1.5',
         Platform.select({
-          web: 'focus:bg-accent focus:text-accent-foreground *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 cursor-default outline-none data-[disabled]:pointer-events-none [&_svg]:pointer-events-none',
+          web: 'focus:bg-muted focus:text-foreground *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 cursor-default outline-none data-[disabled]:pointer-events-none [&_svg]:pointer-events-none',
         }),
         props.disabled && 'opacity-50',
         className
@@ -167,7 +181,7 @@ function SelectItem({
           <Icon as={Check} className="text-muted-foreground size-4 shrink-0" />
         </SelectPrimitive.ItemIndicator>
       </View>
-      <SelectPrimitive.ItemText className="text-foreground group-active:text-accent-foreground select-none text-sm" />
+      <SelectPrimitive.ItemText className="text-foreground group-active:text-foreground select-none text-sm" />
     </SelectPrimitive.Item>
   );
 }

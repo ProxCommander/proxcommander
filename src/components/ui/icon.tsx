@@ -2,6 +2,7 @@ import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import type { LucideIcon, LucideProps } from 'lucide-react-native';
 import * as React from 'react';
+import { Platform } from 'react-native';
 import { withUniwind } from 'uniwind';
 
 type IconProps = LucideProps & {
@@ -45,13 +46,12 @@ const StyledIcon = withUniwind(IconImpl, {
  */
 function Icon({ as: IconComponent, className, ...props }: IconProps) {
   const textClass = React.useContext(TextClassContext);
-  return (
-    <StyledIcon
-      as={IconComponent}
-      className={cn('text-foreground size-5', textClass, className)}
-      {...props}
-    />
-  );
+  // An explicit `size` prop wins over the default size class.
+  const classes = cn('text-foreground', props.size == null && 'size-5', textClass, className);
+  // On web the classes go straight onto the <svg> (stroke is `currentColor`), so colour and size
+  // come from CSS: the pre-rendered page then follows the system theme before any JS runs.
+  if (Platform.OS === 'web') return <IconComponent className={classes} {...props} />;
+  return <StyledIcon as={IconComponent} className={classes} {...props} />;
 }
 
 export { Icon };

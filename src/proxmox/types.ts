@@ -26,6 +26,8 @@ export interface ClusterResource {
   maxdisk?: number;
   uptime?: number;
   tags?: string;
+  /** Guest lock, e.g. `suspended` for a VM hibernated to disk. */
+  lock?: string;
 }
 
 /** One row of GET /cluster/status. */

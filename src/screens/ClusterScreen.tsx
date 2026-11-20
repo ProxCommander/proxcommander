@@ -1,7 +1,9 @@
-import { ChevronLeft, RefreshCw } from 'lucide-react-native';
+import { Box, CircleAlert, Database, LogIn, Monitor, RefreshCw, Server, type LucideIcon } from 'lucide-react-native';
 import { RefreshControl, ScrollView, View } from 'react-native';
 
-import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/EmptyState';
+import { ScreenHeader } from '@/components/ScreenHeader';
+import { resourceStatus, StatusBadge } from '@/components/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
@@ -15,11 +17,11 @@ import { useClusterResources, useClusterStatus } from '@/query/hooks';
 import { useSession, useSessions } from '@/session/sessions';
 import { useProfiles } from '@/state/profiles';
 
-const GROUPS: Array<{ title: string; type: ClusterResourceType }> = [
-  { title: 'Nodes', type: 'node' },
-  { title: 'Virtual machines', type: 'qemu' },
-  { title: 'Containers', type: 'lxc' },
-  { title: 'Storage', type: 'storage' },
+const GROUPS: Array<{ title: string; type: ClusterResourceType; icon: LucideIcon }> = [
+  { title: 'Nodes', type: 'node', icon: Server },
+  { title: 'Virtual machines', type: 'qemu', icon: Monitor },
+  { title: 'Containers', type: 'lxc', icon: Box },
+  { title: 'Storage', type: 'storage', icon: Database },
 ];
 
 interface ClusterScreenProps {
@@ -46,46 +48,42 @@ export function ClusterScreen({ clusterId, loginId: requestedLoginId, onBack }: 
 
   return (
     <View className="flex-1">
-      <View className="border-border flex-row items-center gap-2 border-b px-2 py-2">
-        <Button variant="ghost" size="icon" accessibilityLabel="Back" onPress={onBack}>
-          <Icon as={ChevronLeft} />
-        </Button>
-        <View className="flex-1">
-          <Text className="font-semibold" numberOfLines={1}>
-            {cluster?.name ?? 'Cluster'}
-          </Text>
-          <Text className="text-muted-foreground text-xs" numberOfLines={1}>
-            {session ? `${session.userId} via ${endpoint?.url.replace(/^https:\/\//, '') ?? '—'}` : 'Signed out'}
-          </Text>
-        </View>
-        {summary ? (
-          <Badge variant={summary.quorate ? 'default' : 'destructive'}>
-            <Text>{summary.quorate ? 'Quorate' : 'No quorum'}</Text>
-          </Badge>
-        ) : null}
+      <ScreenHeader
+        title={cluster?.name ?? 'Cluster'}
+        subtitle={session ? `${session.userId} via ${endpoint?.url.replace(/^https:\/\//, '') ?? '—'}` : 'Signed out'}
+        onBack={onBack}>
+        {summary ? <StatusBadge status={summary.quorate ? 'quorate' : 'no-quorum'} /> : null}
         <Button variant="ghost" size="icon" accessibilityLabel="Refresh" onPress={refresh} disabled={!session}>
           <Icon as={RefreshCw} className="size-4" />
         </Button>
-      </View>
+      </ScreenHeader>
 
       {!session ? (
-        <View className="items-center gap-3 py-16">
-          <Text>{cluster ? 'This login is signed out.' : 'This cluster isn’t saved here.'}</Text>
+        <EmptyState
+          icon={LogIn}
+          title={cluster ? 'This login is signed out.' : 'This cluster isn’t saved here.'}
+          description={cluster ? 'Sign in again from the cluster list to see its nodes, guests and storage.' : undefined}>
           <Button variant="outline" onPress={onBack}>
             <Text>Back to clusters</Text>
           </Button>
-        </View>
+        </EmptyState>
       ) : (
         <ScrollView
-          contentContainerClassName="gap-4 p-4"
+          contentContainerClassName="w-full max-w-5xl gap-4 self-center p-4 pb-10 sm:p-6"
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
-          {resources.error ? <Text className="text-destructive text-sm">{errorMessage(resources.error)}</Text> : null}
+          {resources.error ? (
+            <View className="bg-status-error-surface flex-row items-center gap-3 rounded-lg px-4 py-3">
+              <Icon as={CircleAlert} className="text-status-error size-4" />
+              <Text className="text-status-error flex-1 text-sm">{errorMessage(resources.error)}</Text>
+            </View>
+          ) : null}
           {resources.isPending
-            ? [0, 1, 2].map((key) => <Skeleton key={key} className="h-24 w-full" />)
-            : GROUPS.map(({ title, type }) => (
+            ? [0, 1, 2].map((key) => <Skeleton key={key} className="h-28 w-full rounded-xl" />)
+            : GROUPS.map(({ title, type, icon }) => (
                 <ResourceGroup
                   key={type}
                   title={title}
+                  icon={icon}
                   rows={(resources.data ?? []).filter((row) => row.type === type && !row.template)}
                 />
               ))}
@@ -107,16 +105,19 @@ function useLoginFor(clusterId: string, requestedLoginId?: string): string {
   return login?.id ?? '';
 }
 
-function ResourceGroup({ title, rows }: { title: string; rows: ClusterResource[] }) {
+function ResourceGroup({ title, icon, rows }: { title: string; icon: LucideIcon; rows: ClusterResource[] }) {
   if (rows.length === 0) return null;
   const sorted = [...rows].sort((a, b) => (a.vmid ?? 0) - (b.vmid ?? 0) || label(a).localeCompare(label(b)));
   return (
-    <Card className="gap-0 py-0">
-      <View className="flex-row items-center justify-between px-4 py-2">
-        <Text className="text-sm font-semibold">{title}</Text>
-        <Text className="text-muted-foreground text-xs">
-          {rows.length}
+    <Card className="gap-0 overflow-hidden py-0">
+      <View className="bg-muted/50 flex-row items-center gap-2 px-4 py-2.5">
+        <Icon as={icon} className="text-muted-foreground size-4" />
+        <Text role="heading" aria-level="2" className="flex-1 text-sm font-semibold">
+          {title}
         </Text>
+        <View className="bg-background min-w-6 items-center rounded-full px-2 py-0.5">
+          <Text className="text-muted-foreground text-xs font-medium tabular-nums">{rows.length}</Text>
+        </View>
       </View>
       {sorted.map((row) => (
         <View key={row.id}>
@@ -134,43 +135,41 @@ function label(row: ClusterResource): string {
   return row.name ?? row.id;
 }
 
-const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  running: 'default',
-  online: 'default',
-  available: 'default',
-  stopped: 'secondary',
-  offline: 'destructive',
-  paused: 'outline',
-};
-
 function ResourceRow({ row }: { row: ClusterResource }) {
   const usage =
     row.type === 'storage'
       ? `${formatBytes(row.disk)} / ${formatBytes(row.maxdisk)}`
       : `CPU ${formatPercent(row.cpu)} · ${formatBytes(row.mem)} / ${formatBytes(row.maxmem)}`;
+  const hasUsage = (row.type === 'storage' ? row.maxdisk : row.maxmem) != null;
+  const node = row.type !== 'node' ? row.node : undefined;
+  // Phones: node and usage share the line under the name. Wider screens: usage gets its own column.
+  const details = [node, hasUsage ? usage : undefined].filter(Boolean).join(' · ');
   return (
-    <View className="flex-row items-center gap-3 px-4 py-2">
+    <View className="min-h-14 flex-row items-center gap-3 px-4 py-2.5">
       {row.vmid != null ? (
-        <Text className="text-muted-foreground w-12 text-xs tabular-nums">
+        <Text className="text-muted-foreground w-11 font-mono text-xs tabular-nums">
           {row.vmid}
         </Text>
       ) : null}
-      <View className="flex-1">
-        <Text className="text-sm" numberOfLines={1}>
+      <View className="min-w-0 flex-1 gap-0.5">
+        <Text className="text-sm font-medium" numberOfLines={1}>
           {label(row)}
         </Text>
-        {row.type !== 'node' && row.node ? (
-          <Text className="text-muted-foreground text-xs">
-            {row.node}
+        {details ? (
+          <Text className="text-muted-foreground text-xs tabular-nums sm:hidden" numberOfLines={1}>
+            {details}
+          </Text>
+        ) : null}
+        {node ? (
+          <Text className="text-muted-foreground hidden text-xs sm:flex" numberOfLines={1}>
+            {node}
           </Text>
         ) : null}
       </View>
-      {(row.type === 'storage' ? row.maxdisk : row.maxmem) != null ? (
-        <Text className="text-muted-foreground text-xs tabular-nums">{usage}</Text>
+      {hasUsage ? (
+        <Text className="text-muted-foreground hidden text-xs tabular-nums sm:flex">{usage}</Text>
       ) : null}
-      <Badge variant={STATUS_VARIANT[row.status ?? ''] ?? 'outline'}>
-        <Text>{row.status ?? 'unknown'}</Text>
-      </Badge>
+      <StatusBadge status={resourceStatus(row)} className="sm:min-w-24" />
     </View>
   );
 }
