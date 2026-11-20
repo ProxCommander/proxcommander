@@ -55,6 +55,10 @@ Expo SDK 58 (React Native 0.88, React 19.3, New Architecture), React Native Reus
 
 Conventional Commits, always with a scope: `type(scope): summary`, lower-case imperative summary, no trailing period. Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `style`, `revert`. The scope names the area touched, e.g. `feat(session): ...`, `fix(proxy): ...`, `chore(deps): ...`, `refactor(app): ...`. PR titles follow the same format, since they become the squash-merge commit on `trunk`. No AI attribution or co-author trailers.
 
+## Other products
+
+Never name competing apps, products or companies anywhere in this repo: code, comments, docs, commit messages, PR titles or bodies, issues, or release notes. Describe what other tools do in general terms ("a common pattern is ...", "some mobile clients ..."). Keep any named competitive research outside the repo. Proxmox's own products may be named where we integrate with them.
+
 ## Agent skills
 
 Vendored in `.agents/skills/` and pinned in `skills-lock.json`: `expo-overview`, `expo-project-structure`, `expo-data-fetching`, `expo-design-system`, `expo-native-ui`, `expo-upgrade` (expo/skills), `react-native-best-practices` (callstackincubator/agent-skills), `uniwind` (uni-stack/uniwind). Restore or refresh with `pnpm dlx skills@1.7.6 experimental_install`.
