@@ -47,6 +47,10 @@ Expo SDK 58 (React Native 0.88, React 19.3, New Architecture), React Native Reus
 - PVE tickets live 2 hours; renew from 15 minutes. Client policy (idle, max age) may end a session sooner, never later.
 - Send credentials as `Authorization: PVEAuthCookie=...` / `PVEAPIToken=...` headers with `CSRFPreventionToken` on writes, never cookies.
 
+## Branches
+
+`trunk` is the default branch; every PR targets it and is squash-merged. `live` is production: pushing to it deploys proxcommander.app (Cloudflare Workers Builds) and runs the EAS production builds. Only fast-forward `live` to `trunk` (`git push origin trunk:live`); never commit to `live` directly.
+
 ## Commits
 
 Conventional Commits, always with a scope: `type(scope): summary`, lower-case imperative summary, no trailing period. Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `style`, `revert`. The scope names the area touched, e.g. `feat(session): ...`, `fix(proxy): ...`, `chore(deps): ...`, `refactor(app): ...`. PR titles follow the same format, since they become the squash-merge commit on `trunk`. No AI attribution or co-author trailers.
