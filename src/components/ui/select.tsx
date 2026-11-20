@@ -28,9 +28,12 @@ function SelectValue({
       ref={ref}
       className={cn(
         'text-foreground line-clamp-1 flex flex-row items-center gap-2 text-sm',
+        // Native: shrink so a long label truncates instead of pushing the chevron out.
+        Platform.select({ native: 'shrink' }),
         !value && 'text-muted-foreground',
         className
       )}
+      numberOfLines={1}
       {...props}
     />
   );
