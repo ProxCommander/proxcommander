@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">ProxCommander</title>
+  <rect width="512" height="512" rx="116" fill="#0E2230"/>
+  <g transform="translate(10 0)">
+    <path d="M120 168 L208 256 L120 344" fill="none" stroke="#2DD4BF" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="248" y="150" width="148" height="44" rx="22" fill="#E6EEF2"/>
+    <rect x="248" y="234" width="148" height="44" rx="22" fill="#E6EEF2"/>
+    <rect x="248" y="318" width="148" height="44" rx="22" fill="#E6EEF2"/>
+    <circle cx="370" cy="172" r="10" fill="#2DD4BF"/>
+    <circle cx="370" cy="256" r="10" fill="#2DD4BF"/>
+    <circle cx="370" cy="340" r="10" fill="#F5B841"/>
+  </g>
+</svg>
