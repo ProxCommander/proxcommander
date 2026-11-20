@@ -30,7 +30,9 @@ Hosts with self-signed certificates: `PVE_PROXY_INSECURE=1 pnpm proxy`.
 The web build is served from [proxcommander.app](https://proxcommander.app) as
 static files on Cloudflare Workers (static assets only: no Worker script, so
 nothing runs between requests and requests stay on the free plan). Config is
-in `wrangler.jsonc`; security headers are in `public/_headers`.
+in `wrangler.jsonc`; security headers are in `public/_headers`. Routes are
+pre-rendered to HTML at build time; `public/_redirects` maps cluster deep links
+(`/clusters/<id>`) onto the page exported for `/clusters/[clusterId]`.
 
 Cloudflare builds and deploys from GitHub (Workers Builds, free plan):
 
