@@ -1,0 +1,6 @@
+# Cluster ids are only known in the browser, so /clusters/<id> serves the page pre-rendered
+# for /clusters/[clusterId] (a 200 rewrite: the URL stays). Rules run before assets and the
+# first match wins, so the static /clusters/new is listed ahead of the placeholder.
+/clusters/new /clusters/new 200
+/clusters/:clusterId/ /clusters/:clusterId 301
+/clusters/:clusterId /clusters/%5BclusterId%5D 200
