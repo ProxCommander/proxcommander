@@ -4,7 +4,15 @@ import { cn } from '@/lib/utils';
 import * as DialogPrimitive from '@rn-primitives/dialog';
 import { X } from 'lucide-react-native';
 import * as React from 'react';
-import { Platform, Text, View, type GestureResponderEvent, type ViewProps } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+  type GestureResponderEvent,
+  type ViewProps,
+} from 'react-native';
 import { FadeIn, FadeOut, ReduceMotion } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
@@ -17,6 +25,25 @@ const DialogPortal = DialogPrimitive.Portal;
 const DialogClose = DialogPrimitive.Close;
 
 const FullWindowOverlay = Platform.OS === 'ios' ? RNFullWindowOverlay : React.Fragment;
+
+/**
+ * Native: keeps the dialog centred in the space above the keyboard instead of under it, and
+ * scrolls it when it is taller than that space. Web: the browser handles the keyboard.
+ */
+function KeyboardAvoidingContent({ children }: { children: React.ReactNode }) {
+  if (Platform.OS === 'web') return <>{children}</>;
+  return (
+    <KeyboardAvoidingView behavior="padding" className="w-full flex-1">
+      <ScrollView
+        className="w-full flex-1"
+        contentContainerClassName="grow items-center justify-center"
+        keyboardShouldPersistTaps="handled"
+        bounces={false}>
+        {children}
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+}
 
 function DialogOverlay({
   className,
@@ -52,11 +79,13 @@ function DialogOverlay({
           entering={FadeIn.duration(200).reduceMotion(ReduceMotion.System)}
           exiting={FadeOut.duration(150).reduceMotion(ReduceMotion.System)}
           as="Pressable">
-          <NativeOnlyAnimatedView
-            entering={FadeIn.delay(50).reduceMotion(ReduceMotion.System)}
-            exiting={FadeOut.duration(150).reduceMotion(ReduceMotion.System)}>
-            <>{children}</>
-          </NativeOnlyAnimatedView>
+          <KeyboardAvoidingContent>
+            <NativeOnlyAnimatedView
+              entering={FadeIn.delay(50).reduceMotion(ReduceMotion.System)}
+              exiting={FadeOut.duration(150).reduceMotion(ReduceMotion.System)}>
+              <>{children}</>
+            </NativeOnlyAnimatedView>
+          </KeyboardAvoidingContent>
         </NativeOnlyAnimatedView>
       </DialogPrimitive.Overlay>
     </FullWindowOverlay>

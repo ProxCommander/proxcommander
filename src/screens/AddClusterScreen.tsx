@@ -1,6 +1,6 @@
 import { KeyRound, Plus, Server, X, type LucideIcon } from 'lucide-react-native';
 import { useState, type ReactNode } from 'react';
-import { ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Button } from '@/components/ui/button';
@@ -100,144 +100,149 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
     <View className="flex-1">
       <ScreenHeader title="Add cluster" onBack={onCancel} />
 
-      <ScrollView
-        contentContainerClassName="w-full max-w-xl gap-4 self-center p-4 pb-10 sm:pt-8"
-        keyboardShouldPersistTaps="handled">
-        <Card className="gap-5 px-4 py-5 sm:px-6">
-          <CardTitle icon={Server} title="Cluster" />
-          <Field label="Name" error={show(problems.name)}>
-            <Input value={name} onChangeText={setName} placeholder="Homelab" />
-          </Field>
+      {/* Android (edge-to-edge): pads the form above the keyboard. iOS insets the ScrollView itself. */}
+      <KeyboardAvoidingView behavior="padding" enabled={Platform.OS === 'android'} className="flex-1">
+        <ScrollView
+          contentContainerClassName="w-full max-w-xl gap-4 self-center p-4 pb-safe-offset-10 sm:pt-8"
+          keyboardShouldPersistTaps="handled"
+          // iOS: insets the content above the keyboard and scrolls the focused field into view.
+          automaticallyAdjustKeyboardInsets>
+          <Card className="gap-5 px-4 py-5 sm:px-6">
+            <CardTitle icon={Server} title="Cluster" />
+            <Field label="Name" error={show(problems.name)}>
+              <Input value={name} onChangeText={setName} placeholder="Homelab" />
+            </Field>
 
-          <View className="gap-1.5">
-            <Label>Addresses</Label>
-            <Text className="text-muted-foreground text-xs">
-              Any node of the cluster. Tried in order; the first that answers is used.
-            </Text>
-            {endpoints.map((value, index) => (
-              <View key={index} className="gap-1">
-                <View className="flex-row items-center gap-2">
-                  <Input
-                    className="flex-1"
-                    value={value}
-                    onChangeText={(text) => setEndpoints((list) => list.map((v, i) => (i === index ? text : v)))}
-                    placeholder="pve1.example.lan or 10.0.0.5:8006"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    keyboardType="url"
-                  />
-                  {endpoints.length > 1 ? (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      accessibilityLabel="Remove address"
-                      onPress={() => setEndpoints((list) => list.filter((_, i) => i !== index))}>
-                      <Icon as={X} className="size-4" />
-                    </Button>
-                  ) : null}
+            <View className="gap-1.5">
+              <Label>Addresses</Label>
+              <Text className="text-muted-foreground text-xs">
+                Any node of the cluster. Tried in order; the first that answers is used.
+              </Text>
+              {endpoints.map((value, index) => (
+                <View key={index} className="gap-1">
+                  <View className="flex-row items-center gap-2">
+                    <Input
+                      className="flex-1"
+                      value={value}
+                      onChangeText={(text) => setEndpoints((list) => list.map((v, i) => (i === index ? text : v)))}
+                      placeholder="pve1.example.lan or 10.0.0.5:8006"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      keyboardType="url"
+                    />
+                    {endpoints.length > 1 ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        accessibilityLabel="Remove address"
+                        onPress={() => setEndpoints((list) => list.filter((_, i) => i !== index))}>
+                        <Icon as={X} className="size-4" />
+                      </Button>
+                    ) : null}
+                  </View>
+                  <EndpointHint value={value} error={show(problems.endpoints[index])} />
                 </View>
-                <EndpointHint value={value} error={show(problems.endpoints[index])} />
+              ))}
+              <Button variant="outline" size="sm" className="self-start" onPress={() => setEndpoints((list) => [...list, ''])}>
+                <Icon as={Plus} className="size-4" />
+                <Text>Add address</Text>
+              </Button>
+            </View>
+
+            <SwitchRow
+              label="Remember hostnames"
+              hint={isWeb ? 'Saved in this browser. Off: forgotten when the page reloads.' : 'Saved on this device.'}
+              checked={rememberHostnames}
+              onCheckedChange={setRememberHostnames}
+            />
+          </Card>
+
+          <Card className="gap-5 px-4 py-5 sm:px-6">
+            <CardTitle icon={KeyRound} title="Login" />
+            <View className="flex-row gap-3">
+              <Field label="Username" error={show(problems.username)} className="flex-1">
+                <Input value={username} onChangeText={setUsername} autoCapitalize="none" autoCorrect={false} />
+              </Field>
+              <Field label="Realm" error={show(problems.realm)} className="w-28">
+                <Input value={realm} onChangeText={setRealm} autoCapitalize="none" autoCorrect={false} />
+              </Field>
+            </View>
+
+            <View className="gap-1.5">
+              <Label>Authentication</Label>
+              <View role="radiogroup" aria-label="Authentication" className="bg-muted flex-row gap-1 self-start rounded-lg p-1">
+                {(['password', 'token'] as const).map((method) => (
+                  <Button
+                    key={method}
+                    size="sm"
+                    variant="ghost"
+                    role="radio"
+                    aria-checked={authMethod === method}
+                    className={authMethod === method ? 'bg-control-selected shadow-sm shadow-black/10' : undefined}
+                    onPress={() => setAuthMethod(method)}>
+                    <Text className={authMethod === method ? 'text-foreground' : 'text-muted-foreground'}>
+                      {method === 'password' ? 'Password' : 'API token'}
+                    </Text>
+                  </Button>
+                ))}
               </View>
-            ))}
-            <Button variant="outline" size="sm" className="self-start" onPress={() => setEndpoints((list) => [...list, ''])}>
-              <Icon as={Plus} className="size-4" />
-              <Text>Add address</Text>
+            </View>
+
+            {authMethod === 'token' ? (
+              <Field label="Token name" error={show(problems.tokenName)}>
+                <Input value={tokenName} onChangeText={setTokenName} placeholder="proxcommander" autoCapitalize="none" autoCorrect={false} />
+              </Field>
+            ) : null}
+
+            <SwitchRow
+              label="Remember username"
+              hint={rememberHostnames ? undefined : 'Needs “Remember hostnames”.'}
+              checked={rememberHostnames && rememberUsername}
+              disabled={!rememberHostnames}
+              onCheckedChange={setRememberUsername}
+            />
+            {canStoreLongLivedSecrets ? (
+              <SwitchRow
+                label={authMethod === 'token' ? 'Remember token secret' : 'Remember password'}
+                hint="Kept in the device keychain; renews expired sessions automatically."
+                checked={rememberSecret}
+                onCheckedChange={setRememberSecret}
+              />
+            ) : (
+              <Text className="text-muted-foreground text-xs">
+                Passwords and token secrets are never stored in the browser.
+              </Text>
+            )}
+
+            <View className="gap-1.5">
+              <Label>Session rules</Label>
+              <Select
+                value={{ value: preset, label: presetLabel(preset) }}
+                onValueChange={(option) => option && setPreset(option.value as SessionPresetName)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Session rules" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {PRESET_NAMES.map((presetName) => (
+                      <SelectItem key={presetName} value={presetName} label={presetLabel(presetName)} />
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </View>
+          </Card>
+
+          <View className="flex-row justify-end gap-2 pt-1">
+            <Button variant="outline" onPress={onCancel}>
+              <Text>Cancel</Text>
+            </Button>
+            <Button onPress={save} disabled={!ready}>
+              <Text>Save and sign in</Text>
             </Button>
           </View>
-
-          <SwitchRow
-            label="Remember hostnames"
-            hint={isWeb ? 'Saved in this browser. Off: forgotten when the page reloads.' : 'Saved on this device.'}
-            checked={rememberHostnames}
-            onCheckedChange={setRememberHostnames}
-          />
-        </Card>
-
-        <Card className="gap-5 px-4 py-5 sm:px-6">
-          <CardTitle icon={KeyRound} title="Login" />
-          <View className="flex-row gap-3">
-            <Field label="Username" error={show(problems.username)} className="flex-1">
-              <Input value={username} onChangeText={setUsername} autoCapitalize="none" autoCorrect={false} />
-            </Field>
-            <Field label="Realm" error={show(problems.realm)} className="w-28">
-              <Input value={realm} onChangeText={setRealm} autoCapitalize="none" autoCorrect={false} />
-            </Field>
-          </View>
-
-          <View className="gap-1.5">
-            <Label>Authentication</Label>
-            <View role="radiogroup" aria-label="Authentication" className="bg-muted flex-row gap-1 self-start rounded-lg p-1">
-              {(['password', 'token'] as const).map((method) => (
-                <Button
-                  key={method}
-                  size="sm"
-                  variant="ghost"
-                  role="radio"
-                  aria-checked={authMethod === method}
-                  className={authMethod === method ? 'bg-control-selected shadow-sm shadow-black/10' : undefined}
-                  onPress={() => setAuthMethod(method)}>
-                  <Text className={authMethod === method ? 'text-foreground' : 'text-muted-foreground'}>
-                    {method === 'password' ? 'Password' : 'API token'}
-                  </Text>
-                </Button>
-              ))}
-            </View>
-          </View>
-
-          {authMethod === 'token' ? (
-            <Field label="Token name" error={show(problems.tokenName)}>
-              <Input value={tokenName} onChangeText={setTokenName} placeholder="proxcommander" autoCapitalize="none" />
-            </Field>
-          ) : null}
-
-          <SwitchRow
-            label="Remember username"
-            hint={rememberHostnames ? undefined : 'Needs “Remember hostnames”.'}
-            checked={rememberHostnames && rememberUsername}
-            disabled={!rememberHostnames}
-            onCheckedChange={setRememberUsername}
-          />
-          {canStoreLongLivedSecrets ? (
-            <SwitchRow
-              label={authMethod === 'token' ? 'Remember token secret' : 'Remember password'}
-              hint="Kept in the device keychain; renews expired sessions automatically."
-              checked={rememberSecret}
-              onCheckedChange={setRememberSecret}
-            />
-          ) : (
-            <Text className="text-muted-foreground text-xs">
-              Passwords and token secrets are never stored in the browser.
-            </Text>
-          )}
-
-          <View className="gap-1.5">
-            <Label>Session rules</Label>
-            <Select
-              value={{ value: preset, label: presetLabel(preset) }}
-              onValueChange={(option) => option && setPreset(option.value as SessionPresetName)}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Session rules" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {PRESET_NAMES.map((presetName) => (
-                    <SelectItem key={presetName} value={presetName} label={presetLabel(presetName)} />
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </View>
-        </Card>
-
-        <View className="flex-row justify-end gap-2 pt-1">
-          <Button variant="outline" onPress={onCancel}>
-            <Text>Cancel</Text>
-          </Button>
-          <Button onPress={save} disabled={!ready}>
-            <Text>Save and sign in</Text>
-          </Button>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }

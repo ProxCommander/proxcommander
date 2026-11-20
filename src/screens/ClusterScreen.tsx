@@ -1,4 +1,5 @@
 import { Box, CircleAlert, Database, LogIn, Monitor, RefreshCw, Server, type LucideIcon } from 'lucide-react-native';
+import { useRef, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 
 import { EmptyState } from '@/components/EmptyState';
@@ -40,10 +41,20 @@ export function ClusterScreen({ clusterId, loginId: requestedLoginId, onBack }: 
 
   const endpoint = cluster?.endpoints.find((candidate) => candidate.id === session?.endpointId);
   const summary = status.data?.find((entry) => entry.type === 'cluster');
-  const refreshing = status.isRefetching || resources.isRefetching;
+  // Only a refresh the user asked for shows the spinner; the 15 s background polls stay silent
+  // instead of pulling the list down each time.
+  // A second refresh while one runs (header button during a pull) is ignored: it would cancel
+  // the first refetch and hide the spinner early.
+  const [refreshing, setRefreshing] = useState(false);
+  const refreshInFlight = useRef(false);
   const refresh = () => {
-    void status.refetch();
-    void resources.refetch();
+    if (refreshInFlight.current) return;
+    refreshInFlight.current = true;
+    setRefreshing(true);
+    void Promise.allSettled([status.refetch(), resources.refetch()]).finally(() => {
+      refreshInFlight.current = false;
+      setRefreshing(false);
+    });
   };
 
   return (
@@ -69,7 +80,7 @@ export function ClusterScreen({ clusterId, loginId: requestedLoginId, onBack }: 
         </EmptyState>
       ) : (
         <ScrollView
-          contentContainerClassName="w-full max-w-5xl gap-4 self-center p-4 pb-10 sm:p-6"
+          contentContainerClassName="w-full max-w-5xl gap-4 self-center p-4 pb-safe-offset-10 sm:p-6"
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
           {resources.error ? (
             <View className="bg-status-error-surface flex-row items-center gap-3 rounded-lg px-4 py-3">
