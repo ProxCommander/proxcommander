@@ -33,7 +33,7 @@ function SelectValue({
         !value && 'text-muted-foreground',
         className
       )}
-      numberOfLines={1}
+      {...Platform.select({ native: { numberOfLines: 1 } })}
       {...props}
     />
   );
