@@ -102,7 +102,9 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
 
       <ScrollView
         contentContainerClassName="w-full max-w-xl gap-4 self-center p-4 pb-10 sm:pt-8"
-        keyboardShouldPersistTaps="handled">
+        keyboardShouldPersistTaps="handled"
+        // iOS: insets the content above the keyboard and scrolls the focused field into view.
+        automaticallyAdjustKeyboardInsets>
         <Card className="gap-5 px-4 py-5 sm:px-6">
           <CardTitle icon={Server} title="Cluster" />
           <Field label="Name" error={show(problems.name)}>
@@ -186,7 +188,7 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
 
           {authMethod === 'token' ? (
             <Field label="Token name" error={show(problems.tokenName)}>
-              <Input value={tokenName} onChangeText={setTokenName} placeholder="proxcommander" autoCapitalize="none" />
+              <Input value={tokenName} onChangeText={setTokenName} placeholder="proxcommander" autoCapitalize="none" autoCorrect={false} />
             </Field>
           ) : null}
 
