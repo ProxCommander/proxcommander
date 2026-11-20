@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "uniwind";
 
-@import "tw-animate-css"; 
+@import "tw-animate-css";
 
 @theme {
   --radius: 10px;
@@ -13,75 +13,94 @@
   --spacing-hairline: hairlineWidth();
 }
 
+/*
+ * Brand palette: navy surfaces, teal for interactive elements (primary, ring), gold as the accent.
+ * Status colours are a separate set and never reuse the brand teal: green running/online, slate
+ * stopped, amber paused/warning, red offline/error, grey unknown. Each status has a text/icon
+ * colour and a surface for the badge behind it.
+ *
+ * Contrast (WCAG 2.2): every foreground below is at least 4.5:1 on the surfaces it is paired with,
+ * input borders and the ring at least 3:1. `border` is decorative (card edges, separators) and
+ * exempt. Light mode uses darker teal and amber, since the bright brand shades fail on light
+ * backgrounds. Recheck the pairs when changing a value.
+ */
 @layer theme {
   :root {
     @variant light {
-    --color-background:  oklch(1 0 0);
-    --color-foreground:  oklch(0.145 0 0);
-    --color-card:  oklch(1 0 0);
-    --color-card-foreground:  oklch(0.145 0 0);
-    --color-popover:  oklch(1 0 0);
-    --color-popover-foreground:  oklch(0.145 0 0);
-    --color-primary:  oklch(0.205 0 0);
-    --color-primary-foreground:  oklch(0.985 0 0);
-    --color-secondary:  oklch(0.97 0 0);
-    --color-secondary-foreground:  oklch(0.205 0 0);
-    --color-muted:  oklch(0.97 0 0);
-    --color-muted-foreground:  oklch(0.556 0 0);
-    --color-accent:  oklch(0.97 0 0);
-    --color-accent-foreground:  oklch(0.205 0 0);
-    --color-destructive:  oklch(0.577 0.245 27.325);
-    --color-border:  oklch(0.922 0 0);
-    --color-input:  oklch(0.922 0 0);
-    --color-ring:  oklch(0.708 0 0);
-    --color-chart-1:  oklch(0.646 0.222 41.116);
-    --color-chart-2:  oklch(0.6 0.118 184.704);
-    --color-chart-3:  oklch(0.398 0.07 227.392);
-    --color-chart-4:  oklch(0.828 0.189 84.429);
-    --color-chart-5:  oklch(0.769 0.188 70.08);
-    --color-sidebar:  oklch(0.985 0 0);
-    --color-sidebar-foreground:  oklch(0.145 0 0);
-    --color-sidebar-primary:  oklch(0.205 0 0);
-    --color-sidebar-primary-foreground:  oklch(0.985 0 0);
-    --color-sidebar-accent:  oklch(0.97 0 0);
-    --color-sidebar-accent-foreground:  oklch(0.205 0 0);
-    --color-sidebar-border:  oklch(0.922 0 0);
-    --color-sidebar-ring:  oklch(0.708 0 0);
+      --color-background: #F3F6F8;
+      --color-foreground: #0E2230;
+      --color-card: #FFFFFF;
+      --color-card-foreground: #0E2230;
+      --color-popover: #FFFFFF;
+      --color-popover-foreground: #0E2230;
+      --color-primary: #0F766E;
+      --color-primary-foreground: #FFFFFF;
+      --color-secondary: #E8EEF2;
+      --color-secondary-foreground: #0E2230;
+      --color-muted: #E8EEF2;
+      --color-muted-foreground: #4A6072;
+      --color-accent: #FCEFD0;
+      --color-accent-foreground: #7A4E05;
+      --color-destructive: #B91C1C;
+      --color-destructive-foreground: #FFFFFF;
+      --color-border: #D7E0E6;
+      --color-input: #7D909F;
+      --color-ring: #0F766E;
+
+      --color-status-ok: #166534;
+      --color-status-ok-surface: #E7F5EC;
+      --color-status-stopped: #475569;
+      --color-status-stopped-surface: #EEF2F5;
+      --color-status-warning: #92400E;
+      --color-status-warning-surface: #FDF3DC;
+      --color-status-error: #B91C1C;
+      --color-status-error-surface: #FDECEC;
+      --color-status-unknown: #5B6675;
+      --color-status-unknown-surface: #F1F3F5;
     }
 
     @variant dark {
-      --color-background:  oklch(0.145 0 0);
-      --color-foreground:  oklch(0.985 0 0);
-      --color-card:  oklch(0.205 0 0);
-      --color-card-foreground:  oklch(0.985 0 0);
-      --color-popover:  oklch(0.205 0 0);
-      --color-popover-foreground:  oklch(0.985 0 0);
-      --color-primary:  oklch(0.922 0 0);
-      --color-primary-foreground:  oklch(0.205 0 0);
-      --color-secondary:  oklch(0.269 0 0);
-      --color-secondary-foreground:  oklch(0.985 0 0);
-      --color-muted:  oklch(0.269 0 0);
-      --color-muted-foreground:  oklch(0.708 0 0);
-      --color-accent:  oklch(0.269 0 0);
-      --color-accent-foreground:  oklch(0.985 0 0);
-      --color-destructive:  oklch(0.704 0.191 22.216);
-      --color-border:  oklch(1 0 0 / 10%);
-      --color-input:  oklch(1 0 0 / 15%);
-      --color-ring:  oklch(0.556 0 0);
-      --color-chart-1:  oklch(0.488 0.243 264.376);
-      --color-chart-2:  oklch(0.696 0.17 162.48);
-      --color-chart-3:  oklch(0.769 0.188 70.08);
-      --color-chart-4:  oklch(0.627 0.265 303.9);
-      --color-chart-5:  oklch(0.645 0.246 16.439);
-      --color-sidebar:  oklch(0.205 0 0);
-      --color-sidebar-foreground:  oklch(0.985 0 0);
-      --color-sidebar-primary:  oklch(0.488 0.243 264.376);
-      --color-sidebar-primary-foreground:  oklch(0.985 0 0);
-      --color-sidebar-accent:  oklch(0.269 0 0);
-      --color-sidebar-accent-foreground:  oklch(0.985 0 0);
-      --color-sidebar-border:  oklch(1 0 0 / 10%);
-      --color-sidebar-ring:  oklch(0.556 0 0);
+      --color-background: #0E2230;
+      --color-foreground: #E6EEF2;
+      --color-card: #132D3F;
+      --color-card-foreground: #E6EEF2;
+      --color-popover: #132D3F;
+      --color-popover-foreground: #E6EEF2;
+      --color-primary: #2DD4BF;
+      --color-primary-foreground: #0E2230;
+      --color-secondary: #1A3A50;
+      --color-secondary-foreground: #E6EEF2;
+      --color-muted: #1A3A50;
+      --color-muted-foreground: #9FB3C2;
+      --color-accent: #3D3216;
+      --color-accent-foreground: #FFD66B;
+      --color-destructive: #F87171;
+      --color-destructive-foreground: #0E2230;
+      --color-border: #23445A;
+      --color-input: #5E7F95;
+      --color-ring: #2DD4BF;
+
+      --color-status-ok: #4ADE80;
+      --color-status-ok-surface: #15392F;
+      --color-status-stopped: #A3B3C2;
+      --color-status-stopped-surface: #1E3344;
+      --color-status-warning: #FBBF24;
+      --color-status-warning-surface: #3A2F14;
+      --color-status-error: #F87171;
+      --color-status-error-surface: #3B1E24;
+      --color-status-unknown: #A7B4C2;
+      --color-status-unknown-surface: #22303D;
+    }
+
+    /* System monospace for IDs, addresses and figures: nothing to load on any platform. */
+    @variant ios {
+      --font-mono: 'Menlo';
+    }
+    @variant android {
+      --font-mono: 'monospace';
+    }
+    @variant web {
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
     }
   }
 }
-
