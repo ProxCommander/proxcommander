@@ -12,7 +12,7 @@ import { errorMessage } from '@/lib/errors';
 import { formatBytes, formatPercent } from '@/lib/format';
 import type { ClusterResource, ClusterResourceType } from '@/proxmox/types';
 import { useClusterResources, useClusterStatus } from '@/query/hooks';
-import { useSession } from '@/session/sessions';
+import { useSession, useSessions } from '@/session/sessions';
 import { useProfiles } from '@/state/profiles';
 
 const GROUPS: Array<{ title: string; type: ClusterResourceType }> = [
@@ -23,13 +23,16 @@ const GROUPS: Array<{ title: string; type: ClusterResourceType }> = [
 ];
 
 interface ClusterScreenProps {
-  loginId: string;
+  clusterId: string;
+  /** Login to view the cluster as; defaults to its first signed-in login. */
+  loginId?: string;
   onBack: () => void;
 }
 
-export function ClusterScreen({ loginId, onBack }: ClusterScreenProps) {
+export function ClusterScreen({ clusterId, loginId: requestedLoginId, onBack }: ClusterScreenProps) {
+  const loginId = useLoginFor(clusterId, requestedLoginId);
   const session = useSession(loginId);
-  const cluster = useProfiles((state) => state.clusters.find((candidate) => candidate.id === session?.clusterId));
+  const cluster = useProfiles((state) => state.clusters.find((candidate) => candidate.id === clusterId));
   const status = useClusterStatus(loginId);
   const resources = useClusterResources(loginId);
 
@@ -67,7 +70,7 @@ export function ClusterScreen({ loginId, onBack }: ClusterScreenProps) {
 
       {!session ? (
         <View className="items-center gap-3 py-16">
-          <Text>This login is signed out.</Text>
+          <Text>{cluster ? 'This login is signed out.' : 'This cluster isn’t saved here.'}</Text>
           <Button variant="outline" onPress={onBack}>
             <Text>Back to clusters</Text>
           </Button>
@@ -90,6 +93,18 @@ export function ClusterScreen({ loginId, onBack }: ClusterScreenProps) {
       )}
     </View>
   );
+}
+
+/** The requested login when it belongs to the cluster, else the cluster's first signed-in login. */
+function useLoginFor(clusterId: string, requestedLoginId?: string): string {
+  const logins = useProfiles((state) => state.logins);
+  const sessions = useSessions((state) => state.sessions);
+  const onCluster = logins.filter((login) => login.clusterId === clusterId);
+  const login =
+    onCluster.find((candidate) => candidate.id === requestedLoginId) ??
+    onCluster.find((candidate) => sessions[candidate.id]) ??
+    onCluster[0];
+  return login?.id ?? '';
 }
 
 function ResourceGroup({ title, rows }: { title: string; rows: ClusterResource[] }) {

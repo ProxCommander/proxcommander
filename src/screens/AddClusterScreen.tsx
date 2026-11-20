@@ -21,6 +21,7 @@ import { describePolicy } from '@/lib/format';
 import type { AuthMethod } from '@/models';
 import { normalizeEndpointUrl } from '@/proxmox/client';
 import { DEFAULT_SESSION_POLICY, SESSION_PRESETS, type SessionPresetName } from '@/session/policy';
+import { useSessions } from '@/session/sessions';
 import { addCluster, addLogin, REMEMBER_BY_DEFAULT } from '@/state/profiles';
 import { canStoreLongLivedSecrets, isWeb } from '@/storage/backends';
 
@@ -57,6 +58,8 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
   const [rememberSecret, setRememberSecret] = useState(false);
   const [preset, setPreset] = useState<SessionPresetName>(DEFAULT_PRESET);
   const [submitted, setSubmitted] = useState(false);
+  // Saving before stored profiles load would race their restore (e.g. on a reload of this page).
+  const ready = useSessions((state) => state.hydrated);
 
   const problems = {
     name: name.trim() ? null : 'Give the cluster a name',
@@ -70,7 +73,7 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
 
   const save = () => {
     setSubmitted(true);
-    if (!valid) return;
+    if (!valid || !ready) return;
     const cluster = addCluster({
       name: name.trim(),
       kind: 'pve',
@@ -227,7 +230,7 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
           <Button variant="outline" onPress={onCancel}>
             <Text>Cancel</Text>
           </Button>
-          <Button onPress={save}>
+          <Button onPress={save} disabled={!ready}>
             <Text>Save and sign in</Text>
           </Button>
         </View>
