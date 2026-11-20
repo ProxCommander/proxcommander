@@ -27,17 +27,31 @@ Run `pnpm typecheck` and `pnpm build:web` before calling a task done.
 
 ## Stack
 
-Expo SDK 58 (React Native 0.88, React 19.3, New Architecture), React Native Reusables on Uniwind (Tailwind v4) for UI, TanStack Query for server state, zustand for client state. Plain `src/App.tsx` entry (`src/index.ts` registers it); no Expo Router, so don't add it or `@expo/ui` without asking.
+Expo SDK 58 (React Native 0.88, React 19.3, New Architecture), React Native Reusables on Uniwind (Tailwind v4) for UI, TanStack Query for server state, zustand for client state. Expo Router (`main` is `expo-router/entry`) with typed routes (generated into `.expo/types` by `pnpm web` / `pnpm ios`; typecheck also passes without them, just less strictly); no `@expo/ui`, so don't add it without asking.
 
 ## Architecture (`src/`)
 
-- `storage/backends.ts`: key-value backends and persistence levels: `memory`, `tab` (web sessionStorage), `device` (web localStorage / native keychain). `appData` holds non-secret data.
+- `app/`: Expo Router routes (found automatically in `src/app`). `_layout.tsx` holds the providers, `global.css` and `PortalHost`. Routes are thin: they read params and wire navigation into the components in `screens/`.
+  - `/`: welcome and cluster list; `?signIn=<loginId>` opens the sign-in dialog.
+  - `/clusters/new`: add a cluster and its first login.
+  - `/clusters/[clusterId]?login=<loginId>`: the cluster as one login (default: its first signed-in login).
+- `storage/backends.ts`: key-value backends and persistence levels: `memory`, `tab` (web sessionStorage), `device` (web localStorage / native keychain). `appData` holds non-secret data. `isStaticRender` is true while the web build pre-renders in Node.
 - `storage/secrets.ts`: remembered passwords and token secrets; native keychain only, no-op on web.
 - `models.ts`: `Cluster` (ordered `endpoints`, `rememberHostnames`) and `Login` (user@realm, password or API token, `rememberUsername`, `rememberSecret`, `sessionPolicy`).
 - `state/profiles.ts`: zustand store of clusters and logins; persists only remembered entries.
-- `session/`: `policy.ts` (timeout rules and presets), `sessions.ts` (sign in/out, renewal, idle and max-age expiry, many logins signed in at once), `vault.ts` (per-session storage at its persistence level), `request.ts` (authenticated calls), `SessionProvider.tsx` (restore, timers, activity tracking).
+- `session/`: `policy.ts` (timeout rules and presets), `sessions.ts` (sign in/out, renewal, idle and max-age expiry, many logins signed in at once), `vault.ts` (per-session storage at its persistence level), `request.ts` (authenticated calls), `SessionProvider.tsx` (restore, timers, activity tracking; `SessionsReady` gates anything that reads stored profiles or sessions).
 - `proxmox/client.ts`: fetch wrapper (`{ data }` envelope, `PveError`), endpoint failover on network errors only, ticket creation and renewal, web dev-proxy routing via `EXPO_PUBLIC_PVE_DEV_PROXY`.
 - `query/`: QueryClient, native focus/online wiring, keys scoped per login (`['pve', loginId, ...]`), hooks (`usePveQuery`, `usePveMutation`, `useSignIn`, ...).
+
+## Static web rendering
+
+`web.output` is `static`: `pnpm build:web` pre-renders every route to HTML in Node, then the browser hydrates it.
+
+- Nothing touches storage during the pre-render: there is no `window`, the profiles store skips hydration, and sessions restore in an effect. Module-level code must not assume browser globals.
+- The first render in the browser must match the HTML, so anything that reads stored profiles or sessions goes inside `SessionsReady` (its fallback is what the HTML holds). Don't gate a whole screen when only part of it needs the data.
+- Theme-dependent styles stay in classNames (pure CSS, follows `prefers-color-scheme`). Values resolved in JS (`useUniwind`, `useResolveClassNames`) are the light theme during the pre-render.
+- Dynamic routes are exported once as `dist/clusters/[clusterId].html`. `public/_redirects` rewrites `/clusters/<id>` to that file (200, URL unchanged), keeping `/clusters/new` ahead of the placeholder. Any other unknown path falls back to `index.html` (`not_found_handling: "single-page-application"`), which still works but re-renders on the client. Add a rule for each new dynamic route.
+- Every page has one inline script, `globalThis.__EXPO_ROUTER_HYDRATE__=true;`; `public/_headers` allows exactly that script by its CSP hash. Recheck the hash if an Expo upgrade changes it.
 
 ## Security invariants
 
@@ -63,4 +77,4 @@ Never name competing apps, products or companies anywhere in this repo: code, co
 
 Vendored in `.agents/skills/` and pinned in `skills-lock.json`: `expo-overview`, `expo-project-structure`, `expo-data-fetching`, `expo-design-system`, `expo-native-ui`, `expo-upgrade` (expo/skills), `react-native-best-practices` (callstackincubator/agent-skills), `uniwind` (uni-stack/uniwind). Restore or refresh with `pnpm dlx skills@1.7.6 experimental_install`.
 
-Where a skill conflicts with this file, this file wins. In particular, the Expo skills route to `expo-router` and `@expo/ui`, which this project doesn't use. They also say to submit feedback with `@expo/agent-cli`; don't send anything to Expo without the user's approval.
+Where a skill conflicts with this file, this file wins. In particular, the Expo skills route to `@expo/ui`, which this project doesn't use. They also say to submit feedback with `@expo/agent-cli`; don't send anything to Expo without the user's approval.
