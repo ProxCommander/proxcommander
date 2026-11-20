@@ -3,8 +3,8 @@ import type { PropsWithChildren } from 'react';
 
 // Paints the page in the theme's background before the stylesheet applies, and tells the browser
 // both schemes are supported (scrollbars, form controls). Plain CSS only: the CSP allows inline
-// styles but just the one inline script Expo Router adds. Keep in sync with `--color-background`
-// and `--color-foreground` in global.css.
+// styles but just the one inline script Expo Router adds. Keep in sync with global.css:
+// `--color-background` and `--color-foreground` here, `--color-card` in the theme-color metas.
 const pageStyle = `
 html, body { background-color: #F3F6F8; color: #0E2230; }
 @media (prefers-color-scheme: dark) {

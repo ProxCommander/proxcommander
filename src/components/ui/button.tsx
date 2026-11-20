@@ -24,7 +24,7 @@ const buttonVariants = cva(
           })
         ),
         outline: cn(
-          'border-border bg-card active:bg-muted dark:border-input border shadow-sm shadow-black/5',
+          'border-control-border bg-card active:bg-muted border shadow-sm shadow-black/5',
           Platform.select({
             web: 'hover:bg-muted',
           })

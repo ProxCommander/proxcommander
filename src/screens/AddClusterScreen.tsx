@@ -174,7 +174,7 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
                   variant="ghost"
                   role="radio"
                   aria-checked={authMethod === method}
-                  className={authMethod === method ? 'bg-card dark:bg-input/50 shadow-sm shadow-black/10' : undefined}
+                  className={authMethod === method ? 'bg-control-selected shadow-sm shadow-black/10' : undefined}
                   onPress={() => setAuthMethod(method)}>
                   <Text className={authMethod === method ? 'text-foreground' : 'text-muted-foreground'}>
                     {method === 'password' ? 'Password' : 'API token'}

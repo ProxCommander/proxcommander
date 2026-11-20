@@ -51,13 +51,14 @@ const STATUS: Record<Status, { label: string; tone: StatusTone; icon: LucideIcon
   unknown: { label: 'Unknown', tone: 'unknown', icon: CircleDashed },
 };
 
-// Full class names, so Tailwind finds them.
+// Full class names, so Tailwind finds them. Unknown has no fill, only a dashed outline, so it
+// reads differently from stopped at a glance.
 const TONE: Record<StatusTone, { surface: string; foreground: string }> = {
-  ok: { surface: 'bg-status-ok-surface', foreground: 'text-status-ok' },
-  stopped: { surface: 'bg-status-stopped-surface', foreground: 'text-status-stopped' },
-  warning: { surface: 'bg-status-warning-surface', foreground: 'text-status-warning' },
-  error: { surface: 'bg-status-error-surface', foreground: 'text-status-error' },
-  unknown: { surface: 'bg-status-unknown-surface', foreground: 'text-status-unknown' },
+  ok: { surface: 'bg-status-ok-surface border-transparent', foreground: 'text-status-ok' },
+  stopped: { surface: 'bg-status-stopped-surface border-transparent', foreground: 'text-status-stopped' },
+  warning: { surface: 'bg-status-warning-surface border-transparent', foreground: 'text-status-warning' },
+  error: { surface: 'bg-status-error-surface border-transparent', foreground: 'text-status-error' },
+  unknown: { surface: 'border-status-unknown border-dashed bg-transparent', foreground: 'text-status-unknown' },
 };
 
 /** The status of a node, guest or storage row of `/cluster/resources`. */
@@ -89,7 +90,7 @@ export function StatusBadge({ status, label, className }: StatusBadgeProps) {
   const { icon, tone, label: word } = STATUS[status];
   const { surface, foreground } = TONE[tone];
   return (
-    <View className={cn('shrink-0 flex-row items-center gap-1 rounded-full py-0.5 pl-1.5 pr-2', surface, className)}>
+    <View className={cn('shrink-0 flex-row items-center gap-1 rounded-full border py-px pl-1.5 pr-2', surface, className)}>
       <Icon as={icon} className={cn('size-3.5', foreground)} strokeWidth={2.25} />
       <Text className={cn('text-xs font-medium', foreground)} numberOfLines={1}>
         {label ?? word}

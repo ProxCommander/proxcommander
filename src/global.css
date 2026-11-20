@@ -17,7 +17,10 @@
  * Brand palette: navy surfaces, teal for interactive elements (primary, ring), gold as the accent.
  * Status colours are a separate set and never reuse the brand teal: green running/online, slate
  * stopped, amber paused/warning, red offline/error, grey unknown. Each status has a text/icon
- * colour and a surface for the badge behind it.
+ * colour and a surface for the badge behind it, except unknown: a dashed outline with no fill.
+ *
+ * Controls: `field` fills inputs and select triggers, `control-border` outlines buttons,
+ * `control-selected` marks the chosen segment, `switch-thumb` is the unchecked switch knob.
  *
  * Contrast (WCAG 2.2): every foreground below is at least 4.5:1 on the surfaces it is paired with,
  * input borders and the ring at least 3:1. `border` is decorative (card edges, separators) and
@@ -47,6 +50,11 @@
       --color-input: #7D909F;
       --color-ring: #0F766E;
 
+      --color-field: #F3F6F8;
+      --color-control-border: #D7E0E6;
+      --color-control-selected: #FFFFFF;
+      --color-switch-thumb: #FFFFFF;
+
       --color-status-ok: #166534;
       --color-status-ok-surface: #E7F5EC;
       --color-status-stopped: #475569;
@@ -56,7 +64,6 @@
       --color-status-error: #B91C1C;
       --color-status-error-surface: #FDECEC;
       --color-status-unknown: #5B6675;
-      --color-status-unknown-surface: #F1F3F5;
     }
 
     @variant dark {
@@ -80,6 +87,11 @@
       --color-input: #5E7F95;
       --color-ring: #2DD4BF;
 
+      --color-field: #2A4659;
+      --color-control-border: #5E7F95;
+      --color-control-selected: #3C5C72;
+      --color-switch-thumb: #E6EEF2;
+
       --color-status-ok: #4ADE80;
       --color-status-ok-surface: #15392F;
       --color-status-stopped: #A3B3C2;
@@ -89,7 +101,6 @@
       --color-status-error: #F87171;
       --color-status-error-surface: #3B1E24;
       --color-status-unknown: #A7B4C2;
-      --color-status-unknown-surface: #22303D;
     }
 
     /* System monospace for IDs, addresses and figures: nothing to load on any platform. */
