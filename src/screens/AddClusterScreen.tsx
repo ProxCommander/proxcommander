@@ -101,7 +101,7 @@ export function AddClusterScreen({ onCancel, onCreated }: AddClusterScreenProps)
       <ScreenHeader title="Add cluster" onBack={onCancel} />
 
       <ScrollView
-        contentContainerClassName="w-full max-w-xl gap-4 self-center p-4 pb-10 sm:pt-8"
+        contentContainerClassName="w-full max-w-xl gap-4 self-center p-4 pb-safe-offset-10 sm:pt-8"
         keyboardShouldPersistTaps="handled"
         // iOS: insets the content above the keyboard and scrolls the focused field into view.
         automaticallyAdjustKeyboardInsets>

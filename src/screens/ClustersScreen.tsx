@@ -38,7 +38,7 @@ export function ClustersScreen({ signInLoginId, onSignIn, onCloseSignIn, onAddCl
         </Button>
       </ScreenHeader>
 
-      <ScrollView contentContainerClassName="w-full max-w-3xl gap-3 self-center px-4 pb-10 pt-6 sm:pt-10">
+      <ScrollView contentContainerClassName="w-full max-w-3xl gap-3 self-center px-4 pb-safe-offset-10 pt-6 sm:pt-10">
         <View className="gap-1.5 pb-3">
           <Text role="heading" aria-level="2" className="text-2xl font-bold tracking-tight sm:text-3xl">
             Welcome to ProxCommander

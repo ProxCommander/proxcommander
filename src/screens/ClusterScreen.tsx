@@ -72,7 +72,7 @@ export function ClusterScreen({ clusterId, loginId: requestedLoginId, onBack }: 
         </EmptyState>
       ) : (
         <ScrollView
-          contentContainerClassName="w-full max-w-5xl gap-4 self-center p-4 pb-10 sm:p-6"
+          contentContainerClassName="w-full max-w-5xl gap-4 self-center p-4 pb-safe-offset-10 sm:p-6"
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
           {resources.error ? (
             <View className="bg-status-error-surface flex-row items-center gap-3 rounded-lg px-4 py-3">

@@ -39,11 +39,12 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       {/* Feeds the safe-area insets to Uniwind's `*-safe` classes: each screen header pads the
-          top with `pt-safe` so its colour runs under the status bar. */}
+          top with `pt-safe` so its colour runs under the status bar, and scrolling content pads its
+          end with `pb-safe-offset-*` so it scrolls under the home indicator. */}
       <SafeAreaListener onChange={({ insets }) => Uniwind.updateInsets(insets)}>
         <AppProviders>
           <ThemeProvider value={navigationTheme}>
-            <View className="bg-background pb-safe px-safe flex-1">
+            <View className="bg-background px-safe flex-1">
               <Stack screenOptions={{ headerShown: false }} />
             </View>
           </ThemeProvider>
