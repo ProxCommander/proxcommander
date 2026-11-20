@@ -50,7 +50,8 @@
     "web:pve": "EXPO_PUBLIC_PVE_DEV_PROXY=http://127.0.0.1:8787 expo start --web",
     "build:web": "expo export --platform web --output-dir dist",
     "deploy:web": "pnpm build:web && wrangler deploy",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "eas": "pnpm dlx --allow-build=dtrace-provider --allow-build=protobufjs eas-cli@27.11.0"
   },
   "private": true,
   "packageManager": "pnpm@12.4.2"

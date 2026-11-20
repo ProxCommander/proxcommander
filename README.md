@@ -35,10 +35,11 @@ Cloudflare builds and deploys from GitHub (Workers Builds, free plan):
 | Setting | Value |
 |---|---|
 | Repository | `ProxCommander/proxcommander` |
-| Production branch | `trunk` |
+| Production branch | `live` |
 | Build command | `pnpm build:web` |
 | Deploy command | `pnpm exec wrangler deploy` |
-| Non-production branch deploy command | `pnpm exec wrangler versions upload` |
+| Preview builds | On (Settings > Build > Branch control) |
+| Preview command | `pnpm exec wrangler preview` |
 
 Node comes from `.node-version` and pnpm from `packageManager` in
 `package.json`. The `proxcommander.app` zone must be on the same Cloudflare
@@ -49,3 +50,22 @@ To deploy by hand instead: `pnpm deploy:web`.
 The site reaches Proxmox through the optional
 [gateway](https://github.com/ProxCommander/proxcommander-gateway), which adds
 the CORS headers browsers need. pveproxy can't send them itself.
+
+## Branches and releases
+
+| Branch | What happens on push |
+|---|---|
+| `trunk` (default) | Cloudflare preview build of the web app |
+| any PR or other branch | Cloudflare preview build, linked from the PR |
+| `live` | Production: Cloudflare deploys proxcommander.app, and EAS builds iOS and Android (`.eas/workflows/production.yml`, profile `production` in `eas.json`) |
+
+Work lands on `trunk` through squash-merged PRs. To release, fast-forward
+`live` to `trunk`:
+
+```sh
+git push origin trunk:live
+```
+
+One-time EAS setup: `pnpm eas init` to link the Expo project, connect
+this repo under the project's GitHub settings on expo.dev, and set up signing
+with `pnpm eas credentials`.

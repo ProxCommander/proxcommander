@@ -1,0 +1,21 @@
+# Production native builds. Pushing to `live` also deploys proxcommander.app
+# through Cloudflare Workers Builds, so one push ships web and native together.
+name: Production builds
+
+on:
+  push:
+    branches: ['live']
+
+jobs:
+  build_android:
+    name: Build Android
+    type: build
+    params:
+      platform: android
+      profile: production
+  build_ios:
+    name: Build iOS
+    type: build
+    params:
+      platform: ios
+      profile: production
