@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/brand/logo.svg" width="112" alt="ProxCommander logo"></p>
+
 # ProxCommander
 
 Expo app for iOS, Android, and web.
