@@ -2,13 +2,15 @@
   "expo": {
     "name": "ProxCommander",
     "slug": "proxcommander",
+    "owner": "proxcommander",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.proxcommander"
+      "bundleIdentifier": "app.proxcommander",
+      "appleTeamId": "7TMBWQ6L7R"
     },
     "android": {
       "adaptiveIcon": {
@@ -39,6 +41,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e00788c4-81a9-4a49-b353-790af42b527c"
+      }
     }
   }
 }
