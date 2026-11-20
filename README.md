@@ -25,15 +25,27 @@ Hosts with self-signed certificates: `PVE_PROXY_INSECURE=1 pnpm proxy`.
 
 ## Hosting
 
-The web build is a static site deployed to Cloudflare Workers static assets
-(no Worker script; see `wrangler.jsonc`, security headers in `public/_headers`):
+The web build is served from [proxcommander.app](https://proxcommander.app) as
+static files on Cloudflare Workers (static assets only: no Worker script, so
+nothing runs between requests and requests stay on the free plan). Config is
+in `wrangler.jsonc`; security headers are in `public/_headers`.
 
-```sh
-pnpm build:web   # export to dist/
-pnpm deploy:web  # build + wrangler deploy
-```
+Cloudflare builds and deploys from GitHub (Workers Builds, free plan):
 
-The deployed site calls Proxmox directly from the browser. Each PVE host must
-therefore sit behind a reverse proxy that adds CORS headers for the site's
-origin (PVE's own pveproxy can't), and its TLS certificate must be trusted by
-the browser.
+| Setting | Value |
+|---|---|
+| Repository | `ProxCommander/proxcommander` |
+| Production branch | `trunk` |
+| Build command | `pnpm build:web` |
+| Deploy command | `pnpm exec wrangler deploy` |
+| Non-production branch deploy command | `pnpm exec wrangler versions upload` |
+
+Node comes from `.node-version` and pnpm from `packageManager` in
+`package.json`. The `proxcommander.app` zone must be on the same Cloudflare
+account for the custom domain in `wrangler.jsonc`.
+
+To deploy by hand instead: `pnpm deploy:web`.
+
+The site reaches Proxmox through the optional
+[gateway](https://github.com/ProxCommander/proxcommander-gateway), which adds
+the CORS headers browsers need. pveproxy can't send them itself.
