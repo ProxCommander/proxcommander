@@ -7,6 +7,7 @@ import * as React from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   Text,
   View,
   type GestureResponderEvent,
@@ -25,12 +26,21 @@ const DialogClose = DialogPrimitive.Close;
 
 const FullWindowOverlay = Platform.OS === 'ios' ? RNFullWindowOverlay : React.Fragment;
 
-/** iOS: keeps the dialog centred in the space above the keyboard instead of under it. */
+/**
+ * Native: keeps the dialog centred in the space above the keyboard instead of under it, and
+ * scrolls it when it is taller than that space. Web: the browser handles the keyboard.
+ */
 function KeyboardAvoidingContent({ children }: { children: React.ReactNode }) {
-  if (Platform.OS !== 'ios') return <>{children}</>;
+  if (Platform.OS === 'web') return <>{children}</>;
   return (
-    <KeyboardAvoidingView behavior="padding" className="w-full flex-1 items-center justify-center">
-      {children}
+    <KeyboardAvoidingView behavior="padding" className="w-full flex-1">
+      <ScrollView
+        className="w-full flex-1"
+        contentContainerClassName="grow items-center justify-center"
+        keyboardShouldPersistTaps="handled"
+        bounces={false}>
+        {children}
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
