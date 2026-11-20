@@ -3,9 +3,11 @@ import '../global.css';
 import { PortalHost } from '@rn-primitives/portal';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider, type Theme } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
+import { useEffect } from 'react';
 import { View } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { useResolveClassNames, useUniwind } from 'uniwind';
+import { SafeAreaListener, SafeAreaProvider } from 'react-native-safe-area-context';
+import { Uniwind, useResolveClassNames, useUniwind } from 'uniwind';
 
 import { AppProviders } from '@/AppProviders';
 import { isWeb } from '@/storage/backends';
@@ -28,20 +30,28 @@ export default function RootLayout() {
     colors: { ...base.colors, background: isWeb ? 'transparent' : String(background ?? base.colors.background) },
   };
 
+  // Native: the root view behind the app (visible during transitions and keyboard animations)
+  // follows the theme too. Web paints it with CSS.
+  useEffect(() => {
+    if (!isWeb && background != null) void SystemUI.setBackgroundColorAsync(String(background));
+  }, [theme, background]);
+
   return (
     <SafeAreaProvider>
-      <AppProviders>
-        <ThemeProvider value={navigationTheme}>
-          <View className="bg-background flex-1">
-            <SafeAreaView style={{ flex: 1 }}>
+      {/* Feeds the safe-area insets to Uniwind's `*-safe` classes: each screen header pads the
+          top with `pt-safe` so its colour runs under the status bar. */}
+      <SafeAreaListener onChange={({ insets }) => Uniwind.updateInsets(insets)}>
+        <AppProviders>
+          <ThemeProvider value={navigationTheme}>
+            <View className="bg-background pb-safe px-safe flex-1">
               <Stack screenOptions={{ headerShown: false }} />
-            </SafeAreaView>
-          </View>
-        </ThemeProvider>
-        {/* Inside the providers: portalled dialogs use React Query. */}
-        <PortalHost />
-      </AppProviders>
-      <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+            </View>
+          </ThemeProvider>
+          {/* Inside the providers: portalled dialogs use React Query. */}
+          <PortalHost />
+        </AppProviders>
+        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+      </SafeAreaListener>
     </SafeAreaProvider>
   );
 }
