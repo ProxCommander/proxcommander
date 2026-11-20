@@ -46,7 +46,8 @@ const StyledIcon = withUniwind(IconImpl, {
  */
 function Icon({ as: IconComponent, className, ...props }: IconProps) {
   const textClass = React.useContext(TextClassContext);
-  const classes = cn('text-foreground size-5', textClass, className);
+  // An explicit `size` prop wins over the default size class.
+  const classes = cn('text-foreground', props.size == null && 'size-5', textClass, className);
   // On web the classes go straight onto the <svg> (stroke is `currentColor`), so colour and size
   // come from CSS: the pre-rendered page then follows the system theme before any JS runs.
   if (Platform.OS === 'web') return <IconComponent className={classes} {...props} />;
