@@ -24,7 +24,11 @@ function Input({
         }),
         className
       )}
-      placeholderTextColorClassName="accent-muted-foreground"
+      // Web: a CSS variable, so the pre-rendered page and both themes get it without JS.
+      {...Platform.select({
+        web: { placeholderTextColor: 'var(--color-muted-foreground)' },
+        default: { placeholderTextColorClassName: 'accent-muted-foreground' },
+      })}
       {...props}
     />
   );
