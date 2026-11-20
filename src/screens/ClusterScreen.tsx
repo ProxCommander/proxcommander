@@ -1,4 +1,5 @@
 import { Box, CircleAlert, Database, LogIn, Monitor, RefreshCw, Server, type LucideIcon } from 'lucide-react-native';
+import { useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 
 import { EmptyState } from '@/components/EmptyState';
@@ -40,10 +41,12 @@ export function ClusterScreen({ clusterId, loginId: requestedLoginId, onBack }: 
 
   const endpoint = cluster?.endpoints.find((candidate) => candidate.id === session?.endpointId);
   const summary = status.data?.find((entry) => entry.type === 'cluster');
-  const refreshing = status.isRefetching || resources.isRefetching;
+  // Only a refresh the user asked for shows the spinner; the 15 s background polls stay silent
+  // instead of pulling the list down each time.
+  const [refreshing, setRefreshing] = useState(false);
   const refresh = () => {
-    void status.refetch();
-    void resources.refetch();
+    setRefreshing(true);
+    void Promise.allSettled([status.refetch(), resources.refetch()]).finally(() => setRefreshing(false));
   };
 
   return (
