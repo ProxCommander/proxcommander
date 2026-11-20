@@ -25,6 +25,13 @@ export function leastDurable(a: Persistence, b: Persistence): Persistence {
 export const isWeb = Platform.OS === 'web';
 
 /**
+ * True while the web build pre-renders pages in Node (`web.output: "static"`).
+ * Nothing is read from or written to storage then; the app restores state in
+ * the browser.
+ */
+export const isStaticRender = isWeb && typeof window === 'undefined';
+
+/**
  * Passwords and API token secrets are only ever written on native, where the
  * OS keychain / keystore protects them. On web they live in memory only.
  */

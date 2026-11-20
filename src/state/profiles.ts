@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import type { Cluster, Endpoint, Login } from '../models';
 import { normalizeEndpointUrl } from '../proxmox/client';
-import { appData, isWeb } from '../storage/backends';
+import { appData, isStaticRender, isWeb } from '../storage/backends';
 import { deleteLoginSecret } from '../storage/secrets';
 
 interface ProfilesState {
@@ -33,6 +33,8 @@ export const useProfiles = create<ProfilesState>()(
     name: 'pc.profiles',
     version: 1,
     storage: createJSONStorage(() => appData),
+    // No storage while pre-rendering web pages; the browser restores profiles.
+    skipHydration: isStaticRender,
     onRehydrateStorage: () => () => finishHydration(),
     partialize: ({ clusters, logins }) => {
       const remembered = clusters.filter((cluster) => cluster.rememberHostnames);
